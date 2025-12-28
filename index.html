@@ -38,6 +38,16 @@
         }
         .shake-anim { animation: shake 0.4s ease-in-out; }
 
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        .ai-loading {
+            background: linear-gradient(90deg, #f0fdfa 25%, #ccfbf1 50%, #f0fdfa 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+
         /* List Box Styling */
         .list-item-box {
             transition: all 0.3s ease;
@@ -82,6 +92,17 @@
         /* Quiz Styles */
         .quiz-btn { transition: all 0.2s; }
         .quiz-btn:disabled { cursor: default; }
+
+        .ai-btn {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            transition: all 0.3s ease;
+        }
+        .ai-btn:hover {
+            opacity: 0.9;
+            transform: scale(1.02);
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.4);
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -143,7 +164,7 @@
                 <div>
                     <h2 class="text-3xl font-bold text-slate-900">Python Lists</h2>
                     <p class="text-slate-600 text-sm leading-relaxed mt-2 max-w-2xl">
-                        A <strong>List</strong> is a built-in Python data structure used to store an ordered collection of items. Lists are <em>mutable</em>, meaning you can modify them (add, remove, or change items) after creation. They are defined using square brackets <code>[]</code> and can hold mixed data types (integers, strings, floats, etc.) and allow duplicate members.
+                        A <strong>List</strong> is a built-in Python data structure used to store an ordered collection of items. Lists are <em>mutable</em>, meaning you can modify them.
                     </p>
                 </div>
             </div>
@@ -156,15 +177,15 @@
                         <ul class="space-y-4 text-sm text-slate-600">
                             <li class="flex gap-3">
                                 <span class="bg-blue-50 text-blue-700 font-mono font-bold px-2 py-0.5 rounded text-xs h-fit">[]</span>
-                                <span>Defined using square brackets. Can hold mixed data types.</span>
+                                <span>Defined using square brackets.</span>
                             </li>
                             <li class="flex gap-3">
                                 <span class="bg-green-50 text-green-700 font-mono font-bold px-2 py-0.5 rounded text-xs h-fit">Mutable</span>
-                                <span>You can add, remove, or change items after creation.</span>
+                                <span>Can change items after creation.</span>
                             </li>
                             <li class="flex gap-3">
                                 <span class="bg-purple-50 text-purple-700 font-mono font-bold px-2 py-0.5 rounded text-xs h-fit">0-Indexed</span>
-                                <span>The first item is at index 0.</span>
+                                <span>First item is at index 0.</span>
                             </li>
                         </ul>
                     </div>
@@ -179,8 +200,6 @@
                         <p>my_list.<span class="func">append</span>(<span class="str">"C"</span>)</p>
                         <p class="mt-2 text-slate-500"># Remove last</p>
                         <p>my_list.<span class="func">pop</span>()</p>
-                        <p class="mt-2 text-slate-500"># Change value</p>
-                        <p>my_list[<span class="num">0</span>] = <span class="str">"Z"</span></p>
                     </div>
                 </div>
 
@@ -193,53 +212,44 @@
 
                     <div class="flex-grow p-8 bg-slate-50/50 flex flex-col items-center justify-center min-h-[300px]">
                         <!-- Visual Container -->
-                        <div id="list-container" class="flex flex-wrap gap-4 items-end justify-center mb-8 w-full">
-                            <!-- JS will inject blocks here -->
-                            <div class="text-slate-400 italic">List is empty...</div>
-                        </div>
-                        
+                        <div id="list-container" class="flex flex-wrap gap-4 items-end justify-center mb-8 w-full"></div>
                         <!-- Indices Row -->
                         <div id="index-container" class="flex gap-4 justify-center w-full h-6 relative top-[-20px]"></div>
                     </div>
 
                     <!-- Controls -->
-                    <div class="bg-white border-t border-slate-200 p-6">
-                        <div class="flex flex-wrap gap-4 items-center justify-center">
-                            <input type="text" id="listInput" placeholder="Enter value (e.g. Apple)" class="bg-slate-50 border border-slate-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 font-mono w-48">
-                            
-                            <button onclick="listAppend()" class="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg text-sm font-bold transition flex items-center gap-2">
-                                <i data-lucide="plus-circle" class="w-4 h-4"></i> .append()
-                            </button>
-                            
-                            <button onclick="listPop()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-bold transition flex items-center gap-2">
-                                <i data-lucide="minus-circle" class="w-4 h-4"></i> .pop()
-                            </button>
-                            
-                            <button onclick="listSort()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold transition flex items-center gap-2">
-                                <i data-lucide="arrow-up-narrow-wide" class="w-4 h-4"></i> .sort()
-                            </button>
-
-                            <button onclick="listClear()" class="bg-slate-200 hover:bg-slate-300 text-slate-600 px-4 py-2 rounded-lg text-sm font-bold transition">
-                                Clear
+                    <div class="bg-white border-t border-slate-200 p-6 space-y-4">
+                        <!-- AI GENERATOR -->
+                        <div class="flex items-center gap-2 bg-indigo-50 p-2 rounded-lg border border-indigo-100">
+                            <input type="text" id="aiListInput" placeholder="✨ Describe a list (e.g., '5 planets')" class="flex-grow bg-white border border-indigo-200 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 font-mono text-indigo-700">
+                            <button onclick="generateListAI()" id="btnAiGen" class="ai-btn px-4 py-2 rounded font-bold text-sm flex items-center gap-2 whitespace-nowrap">
+                                <i data-lucide="sparkles" class="w-4 h-4"></i> AI Generate
                             </button>
                         </div>
-                        <div id="lab-message" class="text-center text-xs font-mono text-slate-400 mt-3 min-h-[1rem]"></div>
+
+                        <!-- Manual Controls -->
+                        <div class="flex flex-wrap gap-4 items-center justify-center pt-2 border-t border-slate-100">
+                            <input type="text" id="listInput" placeholder="Add manually..." class="bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm w-32 focus:outline-none">
+                            <button onclick="listAppend()" class="bg-teal-600 hover:bg-teal-700 text-white px-3 py-2 rounded-lg text-sm font-bold transition">.append()</button>
+                            <button onclick="listPop()" class="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-lg text-sm font-bold transition">.pop()</button>
+                            <button onclick="listSort()" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg text-sm font-bold transition">.sort()</button>
+                            <button onclick="listClear()" class="bg-slate-200 hover:bg-slate-300 text-slate-600 px-3 py-2 rounded-lg text-sm font-bold transition">Clear</button>
+                        </div>
+                        <div id="lab-message" class="text-center text-xs font-mono text-slate-400 min-h-[1rem]"></div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- SECTION 2: TUPLES (The Vault) -->
+        <!-- SECTION 2: TUPLES -->
         <section id="tuples" class="scroll-mt-24">
             <div class="grid lg:grid-cols-2 gap-12 items-center">
                 <div class="order-2 lg:order-1 feature-card p-8 rounded-2xl relative overflow-hidden group">
                     <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition"><i data-lucide="shield-check" class="w-32 h-32"></i></div>
-                    
                     <div class="text-center mb-6">
                         <h3 class="text-xl font-bold text-slate-800 mb-2">The Tuple Vault</h3>
-                        <p class="text-sm text-slate-500">Try to edit the values. Tuples are immutable!</p>
+                        <p class="text-sm text-slate-500">Tuples are immutable. Data is safe here.</p>
                     </div>
-
                     <div class="flex justify-center gap-2 mb-8" id="tuple-display">
                         <div class="bg-slate-800 text-slate-200 font-mono p-4 rounded-lg border-2 border-slate-600 shadow-inner flex items-center gap-4">
                             <span class="text-slate-500">(</span>
@@ -251,13 +261,8 @@
                             <span class="text-slate-500">)</span>
                         </div>
                     </div>
-
                     <div id="tuple-msg" class="text-center text-red-500 font-bold text-sm h-6 opacity-0 transition-opacity">
                         <i data-lucide="lock" class="inline w-3 h-3"></i> Error: Tuple object does not support item assignment
-                    </div>
-
-                    <div class="mt-8 bg-amber-50 border border-amber-200 rounded-lg p-4 text-sm text-amber-800">
-                        <strong>Why use Tuples?</strong> Since they cannot change, they are faster than lists and ensure data integrity (e.g., coordinates, config constants).
                     </div>
                 </div>
 
@@ -267,11 +272,10 @@
                         <div>
                             <h2 class="text-3xl font-bold text-slate-900">Python Tuples</h2>
                             <p class="text-slate-600 text-sm leading-relaxed mt-2 max-w-xl">
-                                A <strong>Tuple</strong> is a built-in Python data structure that is similar to a list but is <em>immutable</em>. This means once a tuple is created, its elements cannot be added, removed, or changed. They are defined using parentheses <code>()</code> and are often used for fixed collections of items, providing data integrity and slightly better performance than lists.
+                                A <strong>Tuple</strong> is similar to a list but <em>immutable</em>. Once created, elements cannot change. Defined using <code>()</code>.
                             </p>
                         </div>
                     </div>
-                    
                     <div class="overflow-hidden rounded-xl border border-slate-200 mt-6">
                         <table class="w-full text-left text-sm">
                             <thead class="bg-slate-50 text-slate-700">
@@ -283,24 +287,14 @@
                             </thead>
                             <tbody class="divide-y divide-slate-100 bg-white">
                                 <tr>
-                                    <td class="p-4 font-bold text-slate-500">Syntax</td>
-                                    <td class="p-4 font-mono text-blue-600">[1, 2, 3]</td>
-                                    <td class="p-4 font-mono text-purple-600">(1, 2, 3)</td>
-                                </tr>
-                                <tr>
                                     <td class="p-4 font-bold text-slate-500">Mutable?</td>
-                                    <td class="p-4 text-green-600 font-bold">Yes (Changeable)</td>
-                                    <td class="p-4 text-red-500 font-bold">No (Fixed)</td>
+                                    <td class="p-4 text-green-600 font-bold">Yes</td>
+                                    <td class="p-4 text-red-500 font-bold">No</td>
                                 </tr>
                                 <tr>
-                                    <td class="p-4 font-bold text-slate-500">Performance</td>
-                                    <td class="p-4">Slower</td>
-                                    <td class="p-4">Faster</td>
-                                </tr>
-                                <tr>
-                                    <td class="p-4 font-bold text-slate-500">Methods</td>
-                                    <td class="p-4">Many (append, pop...)</td>
-                                    <td class="p-4">Few (count, index)</td>
+                                    <td class="p-4 font-bold text-slate-500">Syntax</td>
+                                    <td class="p-4 font-mono text-blue-600">[]</td>
+                                    <td class="p-4 font-mono text-purple-600">()</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -309,25 +303,27 @@
             </div>
         </section>
 
-        <!-- SECTION 3: SLICING (The Master Tool) -->
+        <!-- SECTION 3: SLICING -->
         <section id="slicing" class="scroll-mt-24">
             <div class="text-center max-w-2xl mx-auto mb-12">
                 <span class="text-teal-600 font-bold tracking-wider text-xs uppercase">Power User Feature</span>
                 <h2 class="text-3xl font-bold text-slate-900 mt-2 mb-4">Slicing Master</h2>
-                <p class="text-slate-500">Extract parts of a list using the syntax <code class="bg-slate-200 px-2 py-0.5 rounded text-slate-800 font-mono text-sm">[start : end : step]</code>.</p>
+                <p class="text-slate-500">Extract parts of a list using <code class="bg-slate-200 px-2 py-0.5 rounded text-slate-800 font-mono text-sm">[start : end]</code>.</p>
             </div>
 
             <div class="feature-card rounded-2xl p-8 max-w-4xl mx-auto">
                 <div class="flex flex-col items-center">
                     
+                    <div class="flex justify-end w-full mb-4">
+                        <button onclick="generateWordAI()" id="btnAiWord" class="ai-btn px-3 py-1 rounded-full text-xs font-bold flex items-center gap-2 shadow-sm">
+                            <i data-lucide="sparkles" class="w-3 h-3"></i> AI: New Word
+                        </button>
+                    </div>
+
                     <!-- The Visual List -->
-                    <div id="slice-visual" class="flex gap-1 mb-2">
-                        <!-- JS injects cells -->
-                    </div>
+                    <div id="slice-visual" class="flex gap-1 mb-2 overflow-x-auto p-2 w-full justify-center"></div>
                     <!-- Indices -->
-                    <div id="slice-indices" class="flex gap-1 mb-8">
-                        <!-- JS injects indices -->
-                    </div>
+                    <div id="slice-indices" class="flex gap-1 mb-8 overflow-x-auto w-full justify-center"></div>
 
                     <!-- Controls -->
                     <div class="bg-slate-50 p-6 rounded-xl border border-slate-200 w-full max-w-2xl">
@@ -340,24 +336,21 @@
                             </div>
                             <span class="text-slate-400">]</span>
                         </div>
-                        
                         <div class="grid grid-cols-2 gap-8">
                             <div>
                                 <label class="block text-xs font-bold text-slate-500 mb-2">Start Index</label>
                                 <input type="range" id="rangeStart" min="0" max="9" value="0" class="w-full accent-teal-600" oninput="syncInputs('start')">
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-slate-500 mb-2">End Index (Exclusive)</label>
+                                <label class="block text-xs font-bold text-slate-500 mb-2">End Index</label>
                                 <input type="range" id="rangeEnd" min="0" max="10" value="5" class="w-full accent-teal-600" oninput="syncInputs('end')">
                             </div>
                         </div>
-
                         <div class="mt-6 text-center">
                             <p class="text-sm text-slate-500">Result:</p>
                             <p id="slice-result" class="font-mono text-xl font-bold text-teal-600 mt-1">['P', 'Y', 'T', 'H', 'O']</p>
                         </div>
                     </div>
-
                 </div>
             </div>
         </section>
@@ -367,12 +360,12 @@
             <div class="text-center max-w-2xl mx-auto mb-12">
                 <span class="bg-teal-100 text-teal-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">Assessment</span>
                 <h2 class="text-4xl font-extrabold text-slate-900 mt-4 mb-4">List & Tuple Mastery</h2>
-                <p class="text-slate-500">10 Questions to prove your data structure skills.</p>
+                <p class="text-slate-500">10 Questions to prove your skills.</p>
             </div>
 
             <div class="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto px-6">
                 <!-- Q1 -->
-                <div class="feature-card p-6 rounded-xl">
+                <div class="feature-card p-6 rounded-xl quiz-card" data-q="Which bracket is used to define a List?">
                     <p class="font-bold text-slate-800 mb-4">1. Which bracket is used to define a List?</p>
                     <div class="grid grid-cols-2 gap-2">
                         <button onclick="checkAnswer(this, true, 'q1')" class="quiz-btn text-left p-3 rounded-lg border border-slate-200 text-slate-600 text-sm font-mono">[ ]</button>
@@ -380,99 +373,102 @@
                         <button onclick="checkAnswer(this, false, 'q1')" class="quiz-btn text-left p-3 rounded-lg border border-slate-200 text-slate-600 text-sm font-mono">{ }</button>
                         <button onclick="checkAnswer(this, false, 'q1')" class="quiz-btn text-left p-3 rounded-lg border border-slate-200 text-slate-600 text-sm font-mono">< ></button>
                     </div>
+                    <div class="ai-explain-zone mt-4 hidden"></div>
                 </div>
 
                 <!-- Q2 -->
-                <div class="feature-card p-6 rounded-xl">
+                <div class="feature-card p-6 rounded-xl quiz-card" data-q="Are Tuples mutable?">
                     <p class="font-bold text-slate-800 mb-4">2. Are Tuples mutable?</p>
                     <div class="grid grid-cols-2 gap-2">
                         <button onclick="checkAnswer(this, false, 'q2')" class="quiz-btn text-left p-3 rounded-lg border border-slate-200 text-slate-600 text-sm">Yes</button>
                         <button onclick="checkAnswer(this, true, 'q2')" class="quiz-btn text-left p-3 rounded-lg border border-slate-200 text-slate-600 text-sm">No</button>
                     </div>
+                    <div class="ai-explain-zone mt-4 hidden"></div>
                 </div>
 
                 <!-- Q3 -->
-                <div class="feature-card p-6 rounded-xl">
+                <div class="feature-card p-6 rounded-xl quiz-card" data-q="Which method adds an item to the end of a list?">
                     <p class="font-bold text-slate-800 mb-4">3. Which method adds an item to the end of a list?</p>
                     <div class="grid grid-cols-2 gap-2">
                         <button onclick="checkAnswer(this, false, 'q3')" class="quiz-btn text-left p-3 rounded-lg border border-slate-200 text-slate-600 text-sm font-mono">.add()</button>
-                        <button onclick="checkAnswer(this, false, 'q3')" class="quiz-btn text-left p-3 rounded-lg border border-slate-200 text-slate-600 text-sm font-mono">.push()</button>
                         <button onclick="checkAnswer(this, true, 'q3')" class="quiz-btn text-left p-3 rounded-lg border border-slate-200 text-slate-600 text-sm font-mono">.append()</button>
                         <button onclick="checkAnswer(this, false, 'q3')" class="quiz-btn text-left p-3 rounded-lg border border-slate-200 text-slate-600 text-sm font-mono">.insert()</button>
                     </div>
+                    <div class="ai-explain-zone mt-4 hidden"></div>
                 </div>
 
-                <!-- Q4 -->
-                <div class="feature-card p-6 rounded-xl">
+                 <!-- Q4 -->
+                <div class="feature-card p-6 rounded-xl quiz-card" data-q="Access the first item of: my_list = [10, 20, 30]">
                     <p class="font-bold text-slate-800 mb-4">4. Access the first item of: <code>my_list = [10, 20, 30]</code></p>
                     <div class="grid grid-cols-2 gap-2">
                         <button onclick="checkAnswer(this, false, 'q4')" class="quiz-btn text-left p-3 rounded-lg border border-slate-200 text-slate-600 text-sm font-mono">my_list[1]</button>
                         <button onclick="checkAnswer(this, true, 'q4')" class="quiz-btn text-left p-3 rounded-lg border border-slate-200 text-slate-600 text-sm font-mono">my_list[0]</button>
-                        <button onclick="checkAnswer(this, false, 'q4')" class="quiz-btn text-left p-3 rounded-lg border border-slate-200 text-slate-600 text-sm font-mono">my_list(0)</button>
                         <button onclick="checkAnswer(this, false, 'q4')" class="quiz-btn text-left p-3 rounded-lg border border-slate-200 text-slate-600 text-sm font-mono">my_list.first()</button>
                     </div>
+                    <div class="ai-explain-zone mt-4 hidden"></div>
                 </div>
 
                 <!-- Q5 -->
-                <div class="feature-card p-6 rounded-xl">
+                <div class="feature-card p-6 rounded-xl quiz-card" data-q="What does len(my_list) return?">
                     <p class="font-bold text-slate-800 mb-4">5. What does <code>len(my_list)</code> return?</p>
                     <div class="grid grid-cols-1 gap-2">
                         <button onclick="checkAnswer(this, true, 'q5')" class="quiz-btn text-left p-3 rounded-lg border border-slate-200 text-slate-600 text-sm">The number of items in the list</button>
                         <button onclick="checkAnswer(this, false, 'q5')" class="quiz-btn text-left p-3 rounded-lg border border-slate-200 text-slate-600 text-sm">The size in bytes</button>
-                        <button onclick="checkAnswer(this, false, 'q5')" class="quiz-btn text-left p-3 rounded-lg border border-slate-200 text-slate-600 text-sm">The last item</button>
                     </div>
+                    <div class="ai-explain-zone mt-4 hidden"></div>
                 </div>
 
                 <!-- Q6 -->
-                <div class="feature-card p-6 rounded-xl">
+                <div class="feature-card p-6 rounded-xl quiz-card" data-q="What happens if you try: my_tuple[0] = 5?">
                     <p class="font-bold text-slate-800 mb-4">6. What happens if you try: <code>my_tuple[0] = 5</code>?</p>
                     <div class="grid grid-cols-1 gap-2">
                         <button onclick="checkAnswer(this, false, 'q6')" class="quiz-btn text-left p-3 rounded-lg border border-slate-200 text-slate-600 text-sm">The value changes to 5</button>
                         <button onclick="checkAnswer(this, true, 'q6')" class="quiz-btn text-left p-3 rounded-lg border border-slate-200 text-slate-600 text-sm">TypeError (Error)</button>
-                        <button onclick="checkAnswer(this, false, 'q6')" class="quiz-btn text-left p-3 rounded-lg border border-slate-200 text-slate-600 text-sm">The tuple is deleted</button>
                     </div>
+                    <div class="ai-explain-zone mt-4 hidden"></div>
                 </div>
 
                 <!-- Q7 -->
-                <div class="feature-card p-6 rounded-xl">
+                <div class="feature-card p-6 rounded-xl quiz-card" data-q="How do you get the last item of a list?">
                     <p class="font-bold text-slate-800 mb-4">7. How do you get the last item of a list?</p>
                     <div class="grid grid-cols-2 gap-2">
                         <button onclick="checkAnswer(this, false, 'q7')" class="quiz-btn text-left p-3 rounded-lg border border-slate-200 text-slate-600 text-sm font-mono">list[len]</button>
-                        <button onclick="checkAnswer(this, false, 'q7')" class="quiz-btn text-left p-3 rounded-lg border border-slate-200 text-slate-600 text-sm font-mono">list[last]</button>
                         <button onclick="checkAnswer(this, true, 'q7')" class="quiz-btn text-left p-3 rounded-lg border border-slate-200 text-slate-600 text-sm font-mono">list[-1]</button>
                         <button onclick="checkAnswer(this, false, 'q7')" class="quiz-btn text-left p-3 rounded-lg border border-slate-200 text-slate-600 text-sm font-mono">list[:-1]</button>
                     </div>
+                    <div class="ai-explain-zone mt-4 hidden"></div>
                 </div>
 
-                <!-- Q8 -->
-                <div class="feature-card p-6 rounded-xl">
+                 <!-- Q8 -->
+                <div class="feature-card p-6 rounded-xl quiz-card" data-q="Which slice gets the first 3 items?">
                     <p class="font-bold text-slate-800 mb-4">8. Which slice gets the first 3 items?</p>
                     <div class="grid grid-cols-2 gap-2">
                         <button onclick="checkAnswer(this, true, 'q8')" class="quiz-btn text-left p-3 rounded-lg border border-slate-200 text-slate-600 text-sm font-mono">[0:3]</button>
                         <button onclick="checkAnswer(this, false, 'q8')" class="quiz-btn text-left p-3 rounded-lg border border-slate-200 text-slate-600 text-sm font-mono">[1:3]</button>
                         <button onclick="checkAnswer(this, false, 'q8')" class="quiz-btn text-left p-3 rounded-lg border border-slate-200 text-slate-600 text-sm font-mono">[0:2]</button>
-                        <button onclick="checkAnswer(this, false, 'q8')" class="quiz-btn text-left p-3 rounded-lg border border-slate-200 text-slate-600 text-sm font-mono">[3:0]</button>
                     </div>
+                    <div class="ai-explain-zone mt-4 hidden"></div>
                 </div>
 
                 <!-- Q9 -->
-                <div class="feature-card p-6 rounded-xl">
+                <div class="feature-card p-6 rounded-xl quiz-card" data-q="Can a list contain other lists?">
                     <p class="font-bold text-slate-800 mb-4">9. Can a list contain other lists?</p>
                     <div class="grid grid-cols-2 gap-2">
                         <button onclick="checkAnswer(this, true, 'q9')" class="quiz-btn text-left p-3 rounded-lg border border-slate-200 text-slate-600 text-sm">Yes (Nested List)</button>
                         <button onclick="checkAnswer(this, false, 'q9')" class="quiz-btn text-left p-3 rounded-lg border border-slate-200 text-slate-600 text-sm">No</button>
                     </div>
+                    <div class="ai-explain-zone mt-4 hidden"></div>
                 </div>
 
                 <!-- Q10 -->
-                <div class="feature-card p-6 rounded-xl">
+                <div class="feature-card p-6 rounded-xl quiz-card" data-q="pop(1) removes which item?">
                     <p class="font-bold text-slate-800 mb-4">10. <code>pop(1)</code> removes which item?</p>
                     <div class="grid grid-cols-2 gap-2">
                         <button onclick="checkAnswer(this, false, 'q10')" class="quiz-btn text-left p-3 rounded-lg border border-slate-200 text-slate-600 text-sm">The first item</button>
-                        <button onclick="checkAnswer(this, true, 'q10')" class="quiz-btn text-left p-3 rounded-lg border border-slate-200 text-slate-600 text-sm">The second item (index 1)</button>
+                        <button onclick="checkAnswer(this, true, 'q10')" class="quiz-btn text-left p-3 rounded-lg border border-slate-200 text-slate-600 text-sm">The second item</button>
                         <button onclick="checkAnswer(this, false, 'q10')" class="quiz-btn text-left p-3 rounded-lg border border-slate-200 text-slate-600 text-sm">The last item</button>
-                        <button onclick="checkAnswer(this, false, 'q10')" class="quiz-btn text-left p-3 rounded-lg border border-slate-200 text-slate-600 text-sm">Number 1 from the list</button>
                     </div>
+                    <div class="ai-explain-zone mt-4 hidden"></div>
                 </div>
             </div>
         </section>
@@ -488,10 +484,67 @@
 
     <script>
         lucide.createIcons();
+        const apiKey = ""; // Provided by environment
 
-        // --- 1. LIST LAB LOGIC ---
+        // --- GEMINI HELPER ---
+        async function callGemini(prompt) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: prompt }] }]
+                    })
+                });
+                const data = await response.json();
+                return data.candidates?.[0]?.content?.parts?.[0]?.text || "Error generating content.";
+            } catch (e) {
+                console.error(e);
+                return "API Error. Check console.";
+            }
+        }
+
+        // --- 1. LIST LAB LOGIC & AI ---
         let currentList = ["Apple", "Banana"];
         const listColors = ["bg-red-500", "bg-yellow-400", "bg-green-500", "bg-blue-500", "bg-purple-500", "bg-pink-500", "bg-orange-500", "bg-teal-500"];
+
+        async function generateListAI() {
+            const input = document.getElementById('aiListInput');
+            const promptText = input.value.trim();
+            const btn = document.getElementById('btnAiGen');
+            
+            if (!promptText) return;
+
+            // Loading state
+            btn.disabled = true;
+            btn.innerHTML = `<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Generating...`;
+            lucide.createIcons();
+
+            const prompt = `Generate a JSON array of strings or numbers (max 8 items) representing a python list based on this request: "${promptText}". Return ONLY valid JSON, no markdown, no code blocks.`;
+            
+            try {
+                let response = await callGemini(prompt);
+                // Cleanup potential markdown
+                response = response.replace(/```json/g, '').replace(/```/g, '').trim();
+                const newList = JSON.parse(response);
+                
+                if (Array.isArray(newList)) {
+                    currentList = newList.slice(0, 8); // Limit to 8
+                    renderList();
+                    document.getElementById('lab-message').innerText = `✨ AI generated: ${promptText}`;
+                    document.getElementById('lab-message').className = "text-center text-xs font-mono text-indigo-500 mt-3 min-h-[1rem]";
+                }
+            } catch (e) {
+                document.getElementById('lab-message').innerText = "AI failed to generate a valid list.";
+            }
+
+            // Reset state
+            btn.disabled = false;
+            btn.innerHTML = `<i data-lucide="sparkles" class="w-4 h-4"></i> AI Generate`;
+            lucide.createIcons();
+            input.value = "";
+        }
 
         function renderList() {
             const container = document.getElementById('list-container');
@@ -505,22 +558,18 @@
             }
 
             currentList.forEach((item, index) => {
-                // Item Box
                 const box = document.createElement('div');
-                // Random color assignment based on index
                 const color = listColors[index % listColors.length];
                 box.className = `list-item-box pop-in ${color} text-white font-bold px-4 py-3 rounded-lg shadow-lg flex items-center justify-center min-w-[80px] h-12 relative group`;
                 box.innerText = `"${item}"`;
                 
-                // Hover index tooltip (optional extra)
                 const tooltip = document.createElement('span');
-                tooltip.className = "absolute -top-8 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition";
+                tooltip.className = "absolute -top-8 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition whitespace-nowrap z-10";
                 tooltip.innerText = `Index ${index}`;
                 box.appendChild(tooltip);
 
                 container.appendChild(box);
 
-                // Index Label
                 const idx = document.createElement('div');
                 idx.className = "text-xs font-mono font-bold text-slate-400 w-[80px] text-center";
                 idx.innerText = index;
@@ -531,97 +580,89 @@
         function listAppend() {
             const input = document.getElementById('listInput');
             const val = input.value.trim();
-            const msg = document.getElementById('lab-message');
-            
-            if (!val) {
-                msg.innerText = "Please enter a value first.";
-                msg.className = "text-center text-xs font-mono text-red-500 mt-3 min-h-[1rem]";
-                return;
-            }
-
-            if (currentList.length >= 8) {
-                msg.innerText = "List is full for this demo (max 8 items).";
-                msg.className = "text-center text-xs font-mono text-orange-500 mt-3 min-h-[1rem]";
-                return;
-            }
-
+            if (!val) return;
+            if (currentList.length >= 8) return;
             currentList.push(val);
             input.value = '';
-            msg.innerText = `Added "${val}" at index ${currentList.length - 1}`;
-            msg.className = "text-center text-xs font-mono text-teal-600 mt-3 min-h-[1rem]";
             renderList();
         }
 
         function listPop() {
-            const msg = document.getElementById('lab-message');
-            if (currentList.length === 0) {
-                msg.innerText = "Cannot pop from an empty list!";
-                msg.className = "text-center text-xs font-mono text-red-500 mt-3 min-h-[1rem]";
-                return;
-            }
-            const removed = currentList.pop();
-            msg.innerText = `Removed "${removed}" from end`;
-            msg.className = "text-center text-xs font-mono text-red-500 mt-3 min-h-[1rem]";
+            if (currentList.length === 0) return;
+            currentList.pop();
             renderList();
         }
 
         function listSort() {
-             const msg = document.getElementById('lab-message');
              if(currentList.length < 2) return;
-             
              currentList.sort();
-             msg.innerText = "List sorted alphabetically";
-             msg.className = "text-center text-xs font-mono text-blue-500 mt-3 min-h-[1rem]";
              renderList();
         }
 
         function listClear() {
             currentList = [];
-            document.getElementById('lab-message').innerText = "List cleared.";
             renderList();
         }
 
-        // Initialize List
-        renderList();
-
-
-        // --- 2. TUPLE VAULT LOGIC ---
+        // --- 2. TUPLE LOGIC ---
         function triggerShake(el) {
             const msg = document.getElementById('tuple-msg');
             const parent = el.parentElement;
-            
-            // Animation
             parent.classList.add('shake-anim', 'border-red-500', 'bg-red-50');
             msg.style.opacity = '1';
-            
             setTimeout(() => {
                 parent.classList.remove('shake-anim', 'border-red-500', 'bg-red-50');
                 msg.style.opacity = '0';
             }, 1500);
         }
 
+        // --- 3. SLICING LOGIC & AI ---
+        let sliceData = ['P', 'Y', 'T', 'H', 'O', 'N', '-', 'C', 'O', 'D', 'E'];
 
-        // --- 3. SLICING MASTER LOGIC ---
-        const sliceData = ['P', 'Y', 'T', 'H', 'O', 'N', '-', 'C', 'O', 'D', 'E'];
+        async function generateWordAI() {
+            const btn = document.getElementById('btnAiWord');
+            btn.disabled = true;
+            btn.innerHTML = `<i data-lucide="loader" class="w-3 h-3 animate-spin"></i> Generating...`;
+            lucide.createIcons();
+
+            const prompt = "Generate a random interesting single English word (6-10 characters), uppercase. Return ONLY the word string.";
+            try {
+                let word = await callGemini(prompt);
+                word = word.trim().replace(/[^A-Z]/g, ''); // Clean
+                if (word.length > 0) {
+                    sliceData = word.split('');
+                    initSlicing();
+                }
+            } catch(e) {}
+
+            btn.disabled = false;
+            btn.innerHTML = `<i data-lucide="sparkles" class="w-3 h-3"></i> AI: New Word`;
+            lucide.createIcons();
+        }
 
         function initSlicing() {
             const container = document.getElementById('slice-visual');
             const indices = document.getElementById('slice-indices');
+            container.innerHTML = '';
+            indices.innerHTML = '';
             
             sliceData.forEach((char, i) => {
-                // Cell
                 const cell = document.createElement('div');
                 cell.id = `slice-cell-${i}`;
-                cell.className = "slice-cell w-10 h-12 bg-white border border-slate-300 rounded flex items-center justify-center font-bold text-slate-700 shadow-sm";
+                cell.className = "slice-cell flex-shrink-0 w-10 h-12 bg-white border border-slate-300 rounded flex items-center justify-center font-bold text-slate-700 shadow-sm";
                 cell.innerText = char;
                 container.appendChild(cell);
 
-                // Index
                 const idx = document.createElement('div');
-                idx.className = "w-10 text-center text-xs font-mono text-slate-400";
+                idx.className = "flex-shrink-0 w-10 text-center text-xs font-mono text-slate-400";
                 idx.innerText = i;
                 indices.appendChild(idx);
             });
+            
+            // Reset sliders
+            document.getElementById('rangeStart').max = sliceData.length;
+            document.getElementById('rangeEnd').max = sliceData.length;
+            document.getElementById('rangeEnd').value = Math.min(5, sliceData.length);
             updateSlice();
         }
 
@@ -643,17 +684,13 @@
             let start = parseInt(document.getElementById('sliceStart').value);
             let end = parseInt(document.getElementById('sliceEnd').value);
             
-            // Bounds safety for inputs
             if(start < 0) start = 0;
             if(end > sliceData.length) end = sliceData.length;
 
-            // Sync ranges if updated via number inputs
             document.getElementById('rangeStart').value = start;
             document.getElementById('rangeEnd').value = end;
 
             const resultArr = [];
-
-            // Visual update
             for(let i = 0; i < sliceData.length; i++) {
                 const cell = document.getElementById(`slice-cell-${i}`);
                 if (i >= start && i < end) {
@@ -663,17 +700,15 @@
                     cell.classList.remove('selected');
                 }
             }
-
             document.getElementById('slice-result').innerText = `[${resultArr.join(', ')}]`;
         }
 
-        initSlicing();
-
-
-        // --- 4. QUIZ LOGIC ---
+        // --- 4. QUIZ LOGIC & AI ---
         function checkAnswer(btn, isCorrect, qId) {
             const parent = btn.parentElement;
+            const card = parent.parentElement; // feature-card
             const btns = parent.getElementsByTagName('button');
+            const explainZone = card.querySelector('.ai-explain-zone');
 
             for(let b of btns) {
                 b.disabled = true;
@@ -688,15 +723,51 @@
                         b.innerHTML += ' <i data-lucide="x" class="inline w-3 h-3 ml-1"></i>';
                     }
                 }
-                
-                // Show correct answer if wrong selected
                 if(!isCorrect && isCorrectAttr) {
                     b.classList.add('bg-teal-50', 'border-teal-400', 'text-teal-700', 'ring-1', 'ring-teal-300');
                     b.innerHTML += ' <i data-lucide="check-circle" class="inline w-3 h-3 ml-1"></i>';
                 }
             }
             lucide.createIcons();
+
+            // Show AI Button
+            const questionText = card.getAttribute('data-q');
+            const selectedText = btn.innerText;
+            explainZone.innerHTML = `
+                <button onclick="askAIExplain(this, '${questionText.replace(/'/g, "\\'")}', '${selectedText.replace(/'/g, "\\'")}', ${isCorrect})" class="ai-btn w-full px-4 py-2 rounded-lg text-sm font-bold flex justify-center items-center gap-2">
+                    <i data-lucide="sparkles" class="w-4 h-4"></i> ✨ Ask AI Why
+                </button>
+            `;
+            explainZone.classList.remove('hidden');
+            lucide.createIcons();
         }
+
+        async function askAIExplain(btn, question, selected, isCorrect) {
+            const zone = btn.parentElement;
+            btn.innerHTML = `<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Asking Gemini...`;
+            lucide.createIcons();
+
+            const prompt = `Explain briefly (1-2 sentences) why the answer "${selected}" is ${isCorrect ? "correct" : "incorrect"} for the python question: "${question}". Be encouraging.`;
+            
+            try {
+                const explanation = await callGemini(prompt);
+                zone.innerHTML = `
+                    <div class="bg-indigo-50 border border-indigo-100 rounded-lg p-3 text-sm text-indigo-900 animate-[fadeIn_0.5s]">
+                        <div class="flex gap-2 items-start">
+                            <i data-lucide="sparkles" class="w-4 h-4 text-indigo-500 mt-0.5 flex-shrink-0"></i>
+                            <p>${explanation}</p>
+                        </div>
+                    </div>
+                `;
+                lucide.createIcons();
+            } catch (e) {
+                btn.innerText = "Error asking AI.";
+            }
+        }
+
+        // Initialization
+        renderList();
+        initSlicing();
 
     </script>
 </body>
